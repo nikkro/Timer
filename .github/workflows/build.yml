@@ -26,9 +26,7 @@ jobs:
         run: expo prebuild --platform ios --no-install
 
       - name: Install CocoaPods
-        run: |
-          sudo gem install cocoapods
-          brew install cocoapods
+        run: sudo gem install cocoapods
 
       - name: Install Pods
         run: |
@@ -38,6 +36,7 @@ jobs:
       - name: Disable code signing
         run: |
           cd ios
+          # Extract the project name from the first .xcodeproj found
           PROJECT_NAME=$(ls -d *.xcodeproj | sed 's/\.xcodeproj//')
           sed -i '' "s/DEVELOPMENT_TEAM = .*;/DEVELOPMENT_TEAM = \"\";/g" "$PROJECT_NAME.xcodeproj/project.pbxproj"
           sed -i '' "s/PROVISIONING_PROFILE_SPECIFIER = .*;/PROVISIONING_PROFILE_SPECIFIER = \"\";/g" "$PROJECT_NAME.xcodeproj/project.pbxproj"
@@ -48,11 +47,18 @@ jobs:
       - name: Build .app with xcodebuild (no signing)
         run: |
           cd ios
+          # Find either the workspace or project file (modify if you have multiple projects)
           WORKSPACE_OR_PROJECT=$(find . -name "*.xcworkspace" -o -name "*.xcodeproj" | head -n 1)
-          SCHEME=$(xcodebuild -list -json | jq -r '.project.schemes[0]')
+          if [[ "$WORKSPACE_OR_PROJECT" == *.xcworkspace ]]; then
+            SCHEME=$(xcodebuild -list -workspace "$WORKSPACE_OR_PROJECT" -json | jq -r '.workspace.schemes[0]')
+            BUILD_FLAG="-workspace"
+          else
+            SCHEME=$(xcodebuild -list -project "$WORKSPACE_OR_PROJECT" -json | jq -r '.project.schemes[0]')
+            BUILD_FLAG="-project"
+          fi
           
           xcodebuild \
-            -$([[ "$WORKSPACE_OR_PROJECT" == *.xcworkspace ]] && echo "workspace" || echo "project") "$WORKSPACE_OR_PROJECT" \
+            $BUILD_FLAG "$WORKSPACE_OR_PROJECT" \
             -scheme "$SCHEME" \
             -configuration Release \
             -sdk iphoneos \
