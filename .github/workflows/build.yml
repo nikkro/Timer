@@ -75,7 +75,14 @@ jobs:
         run: |
           cd ios
           mkdir -p Payload
-          cp -r build/Build/Products/Release-iphoneos/*.app Payload/
+          # Locate the built .app file within the derivedDataPath
+          APP_PATH=$(find build -name "*.app" | head -n 1)
+          if [ -z "$APP_PATH" ]; then
+            echo "No .app found!"
+            exit 1
+          fi
+          echo "Found app at: $APP_PATH"
+          cp -r "$APP_PATH" Payload/
           zip -qr app.ipa Payload
 
       - name: Upload IPA artifact
