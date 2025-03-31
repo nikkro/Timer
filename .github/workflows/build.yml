@@ -63,6 +63,7 @@ jobs:
             -configuration Release \
             -sdk iphoneos \
             -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
@@ -72,12 +73,13 @@ jobs:
 
       - name: Package .app into unsigned .ipa
         run: |
-          mkdir Payload
-          cp -r ios/build/Release-iphoneos/*.app Payload/
+          cd ios
+          mkdir -p Payload
+          cp -r build/Build/Products/Release-iphoneos/*.app Payload/
           zip -qr app.ipa Payload
 
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
           name: app.ipa
-          path: app.ipa
+          path: ios/app.ipa
