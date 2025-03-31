@@ -1,8 +1,8 @@
 name: Build iOS IPA
 on:
-  workflow_dispatch: # Manual trigger
+  workflow_dispatch:
   schedule:
-    - cron: '0 0 * * 0' # Auto-rebuild weekly (bypass 7-day AltStore expiry)
+    - cron: '0 0 * * 0'
 
 jobs:
   build:
@@ -36,40 +36,18 @@ jobs:
       - name: Disable code signing
         run: |
           cd ios
-          # Extract the project name from the first .xcodeproj found
           PROJECT_NAME=$(ls -d *.xcodeproj | sed 's/\.xcodeproj//')
           sed -i '' "s/DEVELOPMENT_TEAM = .*;/DEVELOPMENT_TEAM = \"\";/g" "$PROJECT_NAME.xcodeproj/project.pbxproj"
           sed -i '' "s/PROVISIONING_PROFILE_SPECIFIER = .*;/PROVISIONING_PROFILE_SPECIFIER = \"\";/g" "$PROJECT_NAME.xcodeproj/project.pbxproj"
 
-      - name: Install jq (JSON parser)
-        run: brew install jq
-
       - name: Build .app with xcodebuild (no signing)
         run: |
           cd ios
-          # Find either the workspace or project file (modify if you have multiple projects)
           WORKSPACE_OR_PROJECT=$(find . -name "*.xcworkspace" -o -name "*.xcodeproj" | head -n 1)
-          
-          # Extract all available schemes
-          if [[ "$WORKSPACE_OR_PROJECT" == *.xcworkspace ]]; then
-            SCHEMES=$(xcodebuild -list -workspace "$WORKSPACE_OR_PROJECT" -json | jq -r '.workspace.schemes[]')
-            BUILD_FLAG="-workspace"
-          else
-            SCHEMES=$(xcodebuild -list -project "$WORKSPACE_OR_PROJECT" -json | jq -r '.project.schemes[]')
-            BUILD_FLAG="-project"
-          fi
-
-          # Filter out schemes that include "Pods" or "boost" (case-insensitive)
-          SCHEME=$(echo "$SCHEMES" | grep -vi -e "Pods" -e "boost" | head -n 1)
-          # Fallback: if no scheme remains after filtering, use the first available scheme.
-          if [ -z "$SCHEME" ]; then
-            SCHEME=$(echo "$SCHEMES" | head -n 1)
-          fi
-          
-          echo "Selected scheme: $SCHEME"
+          SCHEME="Timer" # Replace with your app's scheme name
           
           xcodebuild \
-            $BUILD_FLAG "$WORKSPACE_OR_PROJECT" \
+            -$([[ "$WORKSPACE_OR_PROJECT" == *.xcworkspace ]] && echo "workspace" || echo "project") "$WORKSPACE_OR_PROJECT" \
             -scheme "$SCHEME" \
             -configuration Release \
             -sdk iphoneos \
@@ -86,10 +64,9 @@ jobs:
         run: |
           cd ios
           mkdir -p Payload
-          # Locate the built .app file within the derivedDataPath
-          APP_PATH=$(find build -name "*.app" | head -n 1)
+          APP_PATH=$(find build/Build/Products/Release-iphoneos -name "*.app" | head -n 1)
           if [ -z "$APP_PATH" ]; then
-            echo "No .app found!"
+            echo "::error::No .app found in build/Build/Products/Release-iphoneos"
             exit 1
           fi
           echo "Found app at: $APP_PATH"
