@@ -1,12 +1,13 @@
-import { StyleSheet, Image, Platform } from 'react-native';
+import {Image, Platform, StyleSheet} from 'react-native';
 
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
+import {Collapsible} from '@/components/Collapsible';
+import {ExternalLink} from '@/components/ExternalLink';
 import ScrollView from '@/components/ScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import {ThemedText} from '@/components/ThemedText';
+import {ThemedView} from '@/components/ThemedView';
 
-export default function TabTwoScreen() {
+
+export default function TabThreeScreen() {
   return (
     <ScrollView>
       <ThemedView style={styles.titleContainer}>
