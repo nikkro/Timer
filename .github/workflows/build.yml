@@ -1,0 +1,58 @@
+name: Build iOS IPA
+on:
+  workflow_dispatch: # Manual trigger
+  schedule:
+    - cron: '0 0 * * 0' # Auto-rebuild every Sunday (to bypass 7-day expiry)
+
+jobs:
+  build:
+    runs-on: macos-latest # Uses Apple Silicon runner (free for public repos)
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+
+      - name: Install Expo CLI
+        run: npm install -g expo-cli
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Prebuild iOS project
+        run: expo prebuild --platform ios --no-install
+
+      - name: Disable code signing in Xcode project
+        run: |
+          cd ios
+          sed -i '' 's/DEVELOPMENT_TEAM = .*;/DEVELOPMENT_TEAM = "";/g' YourProject.xcodeproj/project.pbxproj
+          sed -i '' 's/PROVISIONING_PROFILE_SPECIFIER = .*;/PROVISIONING_PROFILE_SPECIFIER = "";/g' YourProject.xcodeproj/project.pbxproj
+
+      - name: Build .app with xcodebuild (no signing)
+        run: |
+          cd ios
+          xcodebuild \
+            -workspace YourProject.xcworkspace \
+            -scheme YourProject \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            clean build
+
+      - name: Package .app into unsigned .ipa
+        run: |
+          mkdir Payload
+          cp -r ios/build/Release-iphoneos/YourProject.app Payload/
+          zip -qr app.ipa Payload
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: app.ipa
+          path: app.ipa
