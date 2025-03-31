@@ -46,12 +46,9 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   titleContainer: {
-    width:'100%',
     marginTop: 40,
     marginBottom: 20,
     paddingHorizontal: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
     gap: 8,
   },
   settingContainer: {
