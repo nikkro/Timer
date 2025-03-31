@@ -2,7 +2,7 @@ name: Build iOS IPA
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 0 * * 0' # Runs every Sunday
+    - cron: '0 0 * * 0' # Weekly rebuild
 
 jobs:
   build:
@@ -25,19 +25,25 @@ jobs:
       - name: Prebuild iOS project
         run: expo prebuild --platform ios --no-install
 
-      - name: Disable code signing in Xcode project
+      - name: Disable code signing
         run: |
           cd ios
           PROJECT_NAME=$(ls -d *.xcodeproj | sed 's/\.xcodeproj//')
           sed -i '' "s/DEVELOPMENT_TEAM = .*;/DEVELOPMENT_TEAM = \"\";/g" "$PROJECT_NAME.xcodeproj/project.pbxproj"
           sed -i '' "s/PROVISIONING_PROFILE_SPECIFIER = .*;/PROVISIONING_PROFILE_SPECIFIER = \"\";/g" "$PROJECT_NAME.xcodeproj/project.pbxproj"
 
+      - name: Install jq (JSON parser)
+        run: brew install jq
+
       - name: Build .app with xcodebuild (no signing)
         run: |
           cd ios
+          WORKSPACE_OR_PROJECT=$(find . -name "*.xcworkspace" -o -name "*.xcodeproj" | head -n 1)
+          SCHEME=$(xcodebuild -list -json | jq -r '.project.schemes[0]')
+          
           xcodebuild \
-            -workspace Timer.xcworkspace \
-            -scheme Timer \
+            -$([[ "$WORKSPACE_OR_PROJECT" == *.xcworkspace ]] && echo "workspace" || echo "project") "$WORKSPACE_OR_PROJECT" \
+            -scheme "$SCHEME" \
             -configuration Release \
             -sdk iphoneos \
             -destination 'generic/platform=iOS' \
@@ -49,11 +55,11 @@ jobs:
       - name: Package .app into unsigned .ipa
         run: |
           mkdir Payload
-          cp -r ios/build/Release-iphoneos/Timer.app Payload/
+          cp -r ios/build/Release-iphoneos/*.app Payload/
           zip -qr app.ipa Payload
 
       - name: Upload IPA artifact
-        uses: actions/upload-artifact@v4 # Updated to v4
+        uses: actions/upload-artifact@v4
         with:
           name: app.ipa
           path: app.ipa
