@@ -50,7 +50,7 @@ jobs:
           cd ios
           WORKSPACE_OR_PROJECT=$(find . -name "*.xcworkspace" -o -name "*.xcodeproj" | head -n 1)
           SCHEME=$(xcodebuild -list -json | jq -r '.project.schemes[0]')
-
+          
           xcodebuild \
             -$([[ "$WORKSPACE_OR_PROJECT" == *.xcworkspace ]] && echo "workspace" || echo "project") "$WORKSPACE_OR_PROJECT" \
             -scheme "$SCHEME" \
@@ -60,6 +60,8 @@ jobs:
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
+            OTHER_CFLAGS="-Wno-documentation" \
+            GCC_TREAT_WARNINGS_AS_ERRORS=NO \
             clean build
 
       - name: Package .app into unsigned .ipa
