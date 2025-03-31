@@ -1,3 +1,15 @@
 {
-  "welcome": "Welcome to the application!"
+  "navigation": {
+    "timer": "Timer",
+    "saved": "Saved",
+    "history": "History",
+    "settings": "Settings"
+  },
+  "timer": {
+    "title": "Training",
+    "reps": "Repetitions",
+    "sets": "Sets",
+    "rest": "Rest",
+    "unit": "Unit"
+  }
 }

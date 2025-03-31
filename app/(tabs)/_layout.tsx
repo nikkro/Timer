@@ -1,15 +1,17 @@
-import { Tabs } from 'expo-router';
+import {Tabs} from 'expo-router';
 import React from 'react';
-import { Platform } from 'react-native';
+import {Platform} from 'react-native';
 
-import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
+import {HapticTab} from '@/components/HapticTab';
+import {IconSymbol} from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import {Colors} from '@/constants/Colors';
+import {useColorScheme} from '@/hooks/useColorScheme';
+import {useTranslation} from "react-i18next";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const { t } = useTranslation();
 
   return (
     <Tabs
@@ -29,28 +31,28 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Timer',
+          title: t('navigation.timer'),
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="timer" color={color} />,
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="saved"
         options={{
-          title: 'Explore',
+          title: t('navigation.saved'),
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="bookmark" color={color} />,
         }}
       />
       <Tabs.Screen
-          name="explore1"
+          name="history"
           options={{
-            title: 'History',
+            title: t('navigation.history'),
             tabBarIcon: ({ color }) => <IconSymbol size={28} name="calendar-month" color={color} />,
           }}
       />
       <Tabs.Screen
-          name="explore2"
+          name="settings"
           options={{
-            title: 'Settings',
+            title: t('navigation.settings'),
             tabBarIcon: ({ color }) => <IconSymbol size={28} name="settings" color={color} />,
           }}
       />
