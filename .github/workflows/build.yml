@@ -1,12 +1,12 @@
 name: Build iOS IPA
 on:
-  workflow_dispatch: # Manual trigger
+  workflow_dispatch:
   schedule:
-    - cron: '0 0 * * 0' # Auto-rebuild every Sunday (to bypass 7-day expiry)
+    - cron: '0 0 * * 0' # Runs every Sunday
 
 jobs:
   build:
-    runs-on: macos-latest # Uses Apple Silicon runner (free for public repos)
+    runs-on: macos-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -52,7 +52,7 @@ jobs:
           zip -qr app.ipa Payload
 
       - name: Upload IPA artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4 # Updated to v4
         with:
           name: app.ipa
           path: app.ipa
