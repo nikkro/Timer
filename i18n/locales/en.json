@@ -11,5 +11,12 @@
     "sets": "Sets",
     "rest": "Rest",
     "unit": "Unit"
+  },
+  "saved": {
+    "title": "Saved"
+  },
+  "settings": {
+    "title": "Settings",
+    "sample": "Application language: English"
   }
 }

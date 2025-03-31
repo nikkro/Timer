@@ -58,7 +58,7 @@ export default function AmountButton({
             <TextInput
                 maxLength={3}
                 style={styles.countText}
-                value={String(count)}
+                value={count}
                 onChangeText={handleChange}
                 onBlur={handleBlur}
                 keyboardType="numeric"

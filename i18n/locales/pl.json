@@ -1,3 +1,22 @@
 {
-  "welcome": "Cześć tej"
+  "navigation": {
+    "timer": "Minutnik",
+    "saved": "Zapisane",
+    "history": "Historia",
+    "settings": "Ustawienia"
+  },
+  "timer": {
+    "title": "Trening",
+    "reps": "Powtórzenia",
+    "sets": "Serie",
+    "rest": "Odpoczynek",
+    "unit": "Jednostka"
+  },
+  "saved": {
+    "title": "Zapisane"
+  },
+  "settings": {
+    "title": "Ustawienia",
+    "sample": "Język aplikacji: Polski"
+  }
 }
